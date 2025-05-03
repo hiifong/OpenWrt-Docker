@@ -122,16 +122,39 @@ jobs:
           export CONFIG_PACKAGES=$(cat $GITHUB_WORKSPACE/config/packages.config | tr -s "\n" " ")
           make image PACKAGES="$CONFIG_PACKAGES" FILES="files"
           cp -rf bin/targets/$DEVICE_TARGET/$DEVICE_SUBTARGET/*rootfs.tar.gz $GITHUB_WORKSPACE
-                  
+
+      - name: Build RootFS (arm64)
+        if: env.DOCKER_EXTERA_TAG == 'arm64'
+        run: |
+          cd immortalwrt-imagebuilder-$DEVICE_VERSION-$DEVICE_TARGET-$DEVICE_SUBTARGET.Linux-x86_64
+          chmod +x $GITHUB_WORKSPACE/scripts/*
+          $GITHUB_WORKSPACE/scripts/preset-terminal-tools.sh
+          export CONFIG_PACKAGES=$(cat $GITHUB_WORKSPACE/config/packages.config | tr -s "\n" " ")
+          make image PACKAGES="$CONFIG_PACKAGES" FILES="files"
+          cp -rf bin/targets/$DEVICE_TARGET/$DEVICE_SUBTARGET/*rootfs.tar.gz $GITHUB_WORKSPACE
+
       - name: Delete Image Builder
         run: |
           cd $GITHUB_WORKSPACE
           rm -rf openwrt-imagebuilder*
 
       - name: Build & Push Image (amd64)
+        if: env.DOCKER_EXTERA_TAG == 'amd64'
         uses: docker/build-push-action@v6
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ env.DOCKER_IMAGE_ARCH }}
+          file: Dockerfile
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/immortalwrt:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/immortalwrt:24.10.1
+
+      - name: Build & Push Image (arm64)
+        if: env.DOCKER_EXTERA_TAG == 'arm64'
+        uses: docker/build-push-action@v6
+        with:
+          platforms: ${{ env.DOCKER_IMAGE_ARCH }}
           file: Dockerfile
           context: .
           push: true
