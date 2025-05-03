@@ -1,0 +1,28 @@
+services:
+  immortalwrt:
+    container_name: immortalwrt
+    image: hiifong/immortalwrt:latest
+    hostname: ImmortalWrt
+    restart: always
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
+    command: /sbin/init
+    volumes:
+      - "./config/network:/etc/config/network"
+      - "./data/openclash:/etc/openclash"
+    networks:
+      macnet:
+        ipv4_address: 192.168.5.11
+
+networks:
+  macnet:
+    driver: macvlan
+    driver_opts:
+      parent: enP4p65s0
+    ipam:
+      config:
+        - subnet: "192.168.5.0/24"
+          gateway: "192.168.5.1"
