@@ -150,8 +150,8 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/immortalwrt:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/immortalwrt:24.10.1
 
-      - name: Build & Push Image (aarch64)
-        if: env.DOCKER_EXTERA_TAG == 'aarch64'
+      - name: Build & Push Image (arm64)
+        if: env.DOCKER_EXTERA_TAG == 'arm64'
         uses: docker/build-push-action@v6
         with:
           platforms: ${{ env.DOCKER_IMAGE_ARCH }}
